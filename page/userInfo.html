@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        .box {
+            text-align: center;
+            width: 800px;
+            background-color: aliceblue;
+            border: 2px solid green;
+            margin: 0px auto;
+            padding: 60px 0;
+        }
+
+        #f input {
+            line-height: 30px;
+            margin: 15px;
+            width: 250px;
+            padding: 0 20px;
+            font-size: 20px;
+        }
+
+        #f label {
+            font-size: 20px;
+        }
+
+        #f #submit {
+            width: 360px;
+            background-color: chocolate;
+            color: bisque;
+            font-size: 23px;
+        }
+
+        h1 {
+            margin: 0px auto 10px;
+            background-color: aliceblue;
+            width: 75%;
+            padding: 5px 30px;
+            border-radius: 3px;
+            color: #555215;
+        }
+
+    </style>
+</head>
+<body>
+<h1>用户信息展示</h1>
+<div class="box">
+    <form id="f">
+        <label for="id">编号:</label>
+        <input type="text" id="id" name="id" disabled>
+        <br>
+        <label for="name">姓名:</label>
+        <input type="text" id="name" name="name">
+        <br>
+        <label for="sex">性别:</label>
+        <input type="text" id="sex" name="sex">
+        <br>
+        <label for="age">年龄:</label>
+        <input type="text" id="age" name="age">
+        <br>
+        <label for="time">出生:</label>
+        <input type="text" id="time" name="time">
+        <br>
+        <label for="tel">手机:</label>
+        <input type="text" id="tel" name="tel">
+        <br>
+        <label for="address">住址:</label>
+        <input type="text" id="address" name="address">
+        <br>
+        <input type="button" value="修改用户" id="submit">
+    </form>
+</div>
+</body>
+</html>
+<script src="../js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript">
+    //=>获取那个url的参数，根据这个值去请求数据
+    let userID = window.location.href.split('?')[1].split('=')[1];
+    $.ajax({
+        url: '/checkUser?id=' + userID,
+        type: 'get',
+        dataType: 'json',
+        success: function (res) {
+            for (let key in res.data) {
+                $(`#${key}`).val(res.data[key]);
+                if (key === 'sex') {
+                    $(`#${key}`).val(res.data[key] === 0 ? '男' : '女');
+                }
+            }
+        }
+    });
+    $('#submit').click(function () {
+        let str = decodeURIComponent("id=" + userID + '&' + $('#f').serialize());
+        //=>性别处理 女：1 男：2
+        //sex=女& || sex=男&
+        str = str.replace("sex=女&", "sex=1&").replace("sex=男&", "sex=0&");
+        $.ajax({
+            url: '/changeUserInfo',
+            type: 'post',
+            dataType: 'json',
+            data: str,
+            success: function (res) {
+                alert(res.message);
+                window.open('../userList.html');
+            }
+        });
+    });
+
+</script>
